@@ -36,6 +36,10 @@ jobs:
         CIBW_BUILD_VERBOSITY_LINUX: 3
         CIBW_BUILD_VERBOSITY_MACOS: 3
         CIBW_ARCHS_MACOS: "x86_64 arm64"
+        CIBW_TEST_REQUIRES: pytest
+        CIBW_TEST_COMMAND: pytest {project}/tests
+        # arm64 wheels are cross-compiled on the x86_64 runner and cannot run there
+        CIBW_TEST_SKIP: "*-macosx_arm64"
     - uses: actions/upload-artifact@v6
       with:
         name: wheelhouse-${{ matrix.os }}

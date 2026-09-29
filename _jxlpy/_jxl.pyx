@@ -7,7 +7,7 @@ from libcpp.vector cimport vector
 from libcpp.utility cimport pair
 import math
 
-__version__ = '0.9.6'
+__version__ = '0.9.7'
 
 
 cdef extern from 'jxl/types.h':
@@ -658,7 +658,7 @@ cdef class JXLPyEncoder:
 
         self.encoder = JxlEncoderCreate(NULL)
         if self.encoder == NULL:
-            JXLPyError("JxlEncoderCreate")
+            raise JXLPyError("JxlEncoderCreate")
 
         if num_threads == 0:
             self.num_threads = JxlThreadParallelRunnerDefaultNumWorkerThreads()
@@ -836,6 +836,7 @@ cdef class JXLPyEncoder:
 # TODO: test higher bit depths
 cdef class JXLPyDecoder(object):
 
+    cdef object jxl_data
     cdef uint8_t* src
     cdef void* runner
     cdef size_t buffer_size
@@ -849,7 +850,9 @@ cdef class JXLPyDecoder(object):
 
     def __init__(self, jxl_data: bytes, keep_orientation: bool=True, num_threads: int=0):
         
-        self.src = jxl_data
+        # libjxl reads from src until decoding ends, so keep the Python object alive with the decoder
+        self.jxl_data = jxl_data
+        self.src = self.jxl_data
         self.decoding_finished = False
         src_len = len(jxl_data)
         
