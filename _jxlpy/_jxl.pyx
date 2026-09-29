@@ -792,7 +792,11 @@ cdef class JXLPyEncoder:
         cdef uint8_t* next_out = <uint8_t*>compressed.data()
         cdef size_t avail_out = compressed.size() - (next_out - compressed.data())
         cdef size_t offset
-        
+
+        # Input must be closed before processing output, otherwise the frame is not marked as last
+        if self.encoder != NULL:
+            JxlEncoderCloseInput(self.encoder)
+
         self.status = JXL_ENC_NEED_MORE_OUTPUT
         
         while self.status == JXL_ENC_NEED_MORE_OUTPUT:
@@ -808,9 +812,6 @@ cdef class JXLPyEncoder:
                 avail_out = compressed.size() - offset
 
         compressed.resize(next_out - compressed.data())
-        
-        if next_out != NULL and self.encoder != NULL:
-            JxlEncoderCloseInput(self.encoder)
 
         if self.status != JXL_ENC_SUCCESS:
             raise JXLPyError('JxlEncoderProcessOutput', self.status)

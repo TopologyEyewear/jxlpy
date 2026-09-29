@@ -7,7 +7,7 @@ ARCHITECTURE=$1
 echo builddir=$BUILDDIR
 
 if [[ "$(uname)" == 'Darwin' ]]; then
-  alias nproc="sysctl -n hw.logicalcpu" # As opposed to `hw.physicalcpu`
+  nproc() { sysctl -n hw.logicalcpu; } # As opposed to `hw.physicalcpu`
 fi
 
 function checkout_jpeg() {
@@ -23,10 +23,11 @@ function checkout_jpeg() {
 function checkout_libjxl() {
   pushd $BUILDDIR
   if [ ! -d "libjxl" ] ; then
-    git clone https://github.com/libjxl/libjxl.git --recursive --shallow-submodules
+    git clone https://github.com/libjxl/libjxl.git --branch v0.7.0 --recursive --shallow-submodules
   fi
   cd libjxl
   git checkout v0.7.0
+  git submodule update --init --recursive
   # Remove fsized-deallocation. Does not work on github agents
   if [[ "$(uname)" == 'Darwin' ]]; then
     sed -i -- 's/-fsized-deallocation//g' lib/CMakeLists.txt
@@ -48,7 +49,7 @@ function build_libjxl() {
   git checkout v0.7.0
   mkdir -p build
   cd build
-  cmake -DCMAKE_MACOSX_RPATH=0 -DCMAKE_CXX_FLAGS="-I $BUILDDIR/libjxl/lib/include/jxl" ./build/x86_64/libjxl/lib/include/ -DCMAKE_OSX_ARCHITECTURES=$ARCHITECTURE -DJPEGXL_ENABLE_TOOLS=OFF -DBUILD_TESTING=OFF -DJPEGXL_BUNDLE_LIBPNG=ON -DJPEGXL_ENABLE_BENCHMARK=OFF -DJPEGXL_ENABLE_TOOLS=OFF -DJPEGXL_ENABLE_DEVTOOLS=OFF -DCMAKE_INSTALL_PREFIX=$BUILDDIR/sysroot ..
+  cmake -DCMAKE_MACOSX_RPATH=0 -DCMAKE_CXX_FLAGS="-I $BUILDDIR/libjxl/lib/include/jxl" ./build/x86_64/libjxl/lib/include/ -DCMAKE_OSX_ARCHITECTURES=$ARCHITECTURE -DJPEGXL_ENABLE_TOOLS=OFF -DBUILD_TESTING=OFF -DJPEGXL_BUNDLE_LIBPNG=OFF -DJPEGXL_ENABLE_SJPEG=OFF -DJPEGXL_ENABLE_BENCHMARK=OFF -DJPEGXL_ENABLE_TOOLS=OFF -DJPEGXL_ENABLE_DEVTOOLS=OFF -DCMAKE_INSTALL_PREFIX=$BUILDDIR/sysroot ..
   make -j$(nproc) install
   #We want a static build, let's remove all shared objects
   #Note that we must delete lib64 for Centos

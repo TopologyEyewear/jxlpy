@@ -22,8 +22,7 @@ builddir=os.getcwd() + f"/build/{machine}"
 class build(build_module.build):
   def run(self):
     os.makedirs(builddir,exist_ok=True)
-    p = subprocess.Popen(["bash", buildscript, machine], cwd=builddir)
-    p.wait()
+    subprocess.check_call(["bash", buildscript, machine], cwd=builddir)
     build_module.build.run(self)
 
 with open("README.md", 'r') as f:
