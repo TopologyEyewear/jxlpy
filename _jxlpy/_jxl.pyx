@@ -658,7 +658,7 @@ cdef class JXLPyEncoder:
 
         self.encoder = JxlEncoderCreate(NULL)
         if self.encoder == NULL:
-            JXLPyError("JxlEncoderCreate")
+            raise JXLPyError("JxlEncoderCreate")
 
         if num_threads == 0:
             self.num_threads = JxlThreadParallelRunnerDefaultNumWorkerThreads()
