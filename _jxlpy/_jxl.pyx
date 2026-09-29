@@ -836,6 +836,7 @@ cdef class JXLPyEncoder:
 # TODO: test higher bit depths
 cdef class JXLPyDecoder(object):
 
+    cdef object jxl_data
     cdef uint8_t* src
     cdef void* runner
     cdef size_t buffer_size
@@ -849,7 +850,9 @@ cdef class JXLPyDecoder(object):
 
     def __init__(self, jxl_data: bytes, keep_orientation: bool=True, num_threads: int=0):
         
-        self.src = jxl_data
+        # libjxl reads from src until decoding ends, so keep the Python object alive with the decoder
+        self.jxl_data = jxl_data
+        self.src = self.jxl_data
         self.decoding_finished = False
         src_len = len(jxl_data)
         
