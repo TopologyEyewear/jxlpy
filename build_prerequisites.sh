@@ -15,6 +15,8 @@ function checkout_jpeg() {
   if [ ! -d "libjpeg-turbo" ] ; then
     git clone https://github.com/libjpeg-turbo/libjpeg-turbo.git
   fi
+  cd libjpeg-turbo
+  git checkout 2.1.5.1
   popd
 }
 

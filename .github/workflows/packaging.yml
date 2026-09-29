@@ -12,21 +12,23 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        os: [ubuntu-20.04,macos-12]
+        os: [ubuntu-24.04,macos-15-intel]
 
     steps:
-    - uses: actions/checkout@v3
+    - uses: actions/checkout@v4
 
     - name: Build wheels
-      uses: pypa/cibuildwheel@v2.11.2
+      uses: pypa/cibuildwheel@v2.23.3
       env:
-        CIBW_SKIP: "cp27-* cp36-* cp37-* pp* *-win32 *-manylinux_i686 *-musllinux_*"
-        CIBW_BEFORE_ALL: pip install cmake>=3.5
+        CIBW_BUILD: "cp38-* cp39-* cp310-* cp311-* cp312-*"
+        CIBW_SKIP: "pp* *-win32 *-manylinux_i686 *-musllinux_*"
+        CIBW_ENVIRONMENT: "CMAKE_POLICY_VERSION_MINIMUM=3.5"
+        CIBW_BEFORE_ALL: pip install "cmake>=3.5"
         CIBW_BEFORE_ALL_LINUX: yum install -y devtoolset-10-libatomic-devel
         CIBW_BUILD_VERBOSITY_LINUX: 3
         CIBW_BUILD_VERBOSITY_MACOS: 3
         CIBW_ARCHS_MACOS: "x86_64 arm64"
-    - uses: actions/upload-artifact@v3
+    - uses: actions/upload-artifact@v4
       with:
         name: wheelhouse-${{ matrix.os }}
         path: ./wheelhouse/*.whl
