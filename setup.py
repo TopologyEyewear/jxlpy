@@ -1,6 +1,6 @@
 from setuptools import Extension, setup
 from Cython.Build import cythonize
-from distutils.command import build as build_module
+from setuptools.command import build as build_module
 import os
 import subprocess
 import platform
